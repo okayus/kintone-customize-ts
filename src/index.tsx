@@ -2,6 +2,7 @@ import { KintoneRestAPIClient } from "@kintone/rest-api-client";
 
 import { renderExecutionButton } from "./components/desktopUIHelpers";
 import { MessageService } from "./service/MessageService";
+import { copyTableUsersToFields } from "./service/TableUserFieldService";
 import { KintoneSdk } from "./util/kintoneSdk";
 
 import type { Record } from "@kintone/rest-api-client/lib/src/client/types";
@@ -32,4 +33,14 @@ import type { KintoneEvent } from "src/types/KintoneTypes";
       "メッセージを表示",
     );
   });
+
+  // レコード追加・編集時のイベントハンドラー
+  kintone.events.on(
+    ["app.record.create.submit", "app.record.edit.submit"],
+    (event: any) => {
+      // テーブル内のユーザーフィールドをテーブル外にコピー
+      event.record = copyTableUsersToFields(event.record);
+      return event;
+    },
+  );
 })();

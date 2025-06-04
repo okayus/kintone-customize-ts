@@ -1,24 +1,10 @@
+import { KintoneRecordField } from "@kintone/rest-api-client";
+
 import { FIELD_CODES } from "../config/fieldConfig";
 
-import type {
-  InSubtable,
-  Subtable,
-  UserSelect,
-} from "@kintone/rest-api-client/lib/src/KintoneFields/types/field";
-
-type UserEntity = {
-  code: string;
-  name?: string;
-};
-
-type SubtableValue<T> = {
-  id: string;
-  value: T;
-};
-
 export function extractUserCodesFromTable<
-  T extends Record<string, InSubtable<UserSelect>>,
->(tableData: Subtable<T>, fieldCode: keyof T): string[] {
+  T extends Record<string, KintoneRecordField.InSubtable>,
+>(tableData: KintoneRecordField.Subtable<T>, fieldCode: keyof T): string[] {
   const userCodes = new Set<string>();
 
   if (!tableData.value || tableData.value.length === 0) {
@@ -26,7 +12,7 @@ export function extractUserCodesFromTable<
   }
 
   for (const row of tableData.value) {
-    const userField = row.value[fieldCode] as InSubtable<UserSelect>;
+    const userField = row.value[fieldCode] as KintoneRecordField.UserSelect;
     if (userField && userField.value && Array.isArray(userField.value)) {
       for (const user of userField.value) {
         if (user.code) {
@@ -41,17 +27,17 @@ export function extractUserCodesFromTable<
 
 export function createUserSelectValue(
   userCodes: string[],
-): Array<{ code: string }> {
-  return userCodes.map((code) => ({ code }));
+): KintoneRecordField.UserSelect["value"] {
+  return userCodes.map((code) => ({ code, name: "" }));
 }
 
 interface RecordWithUserFields {
-  [FIELD_CODES.TABLE]?: Subtable<{
-    [FIELD_CODES.TABLE_USER_FIELD_1]?: InSubtable<UserSelect>;
-    [FIELD_CODES.TABLE_USER_FIELD_2]?: InSubtable<UserSelect>;
+  [FIELD_CODES.TABLE]?: KintoneRecordField.Subtable<{
+    [FIELD_CODES.TABLE_USER_FIELD_1]?: KintoneRecordField.UserSelect;
+    [FIELD_CODES.TABLE_USER_FIELD_2]?: KintoneRecordField.UserSelect;
   }>;
-  [FIELD_CODES.EXTERNAL_USER_FIELD_1]?: UserSelect;
-  [FIELD_CODES.EXTERNAL_USER_FIELD_2]?: UserSelect;
+  [FIELD_CODES.EXTERNAL_USER_FIELD_1]?: KintoneRecordField.UserSelect;
+  [FIELD_CODES.EXTERNAL_USER_FIELD_2]?: KintoneRecordField.UserSelect;
   [key: string]: any;
 }
 

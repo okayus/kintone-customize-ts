@@ -1,23 +1,29 @@
 import { KintoneRestAPIClient } from "@kintone/rest-api-client";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { KintoneSdk } from "./kintoneSdk";
 
-vi.mock("@kintone/rest-api-client", () => {
-  return {
-    KintoneRestAPIClient: vi.fn(() => ({
-      record: {
-        getRecords: vi.fn().mockResolvedValue({
-          records: [], // 初期のモックデータ
-        }),
-      },
-    })),
-  };
-});
+vi.mock("@kintone/rest-api-client");
 
 describe("kintoneSdk.getRecords", () => {
-  const mockClient = new KintoneRestAPIClient();
-  const kintoneApiService = new KintoneSdk(mockClient); // モックを注入
+  let mockClient: any;
+  let kintoneApiService: KintoneSdk;
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+
+    // モッククライアントの作成
+    mockClient = {
+      record: {
+        getRecords: vi.fn(),
+      },
+    };
+
+    // モックされたコンストラクタがモッククライアントを返すように設定
+    vi.mocked(KintoneRestAPIClient).mockImplementation(() => mockClient as any);
+
+    kintoneApiService = new KintoneSdk(mockClient);
+  });
 
   const appId = 123;
   const fields = ["field1", "field2"];

@@ -1,3 +1,4 @@
+import { KintoneRecordField } from "@kintone/rest-api-client";
 import { describe, expect, it } from "vitest";
 
 import {
@@ -6,17 +7,11 @@ import {
   extractUserCodesFromTable,
 } from "./TableUserFieldService";
 
-import type {
-  InSubtable,
-  Subtable,
-  UserSelect,
-} from "@kintone/rest-api-client/lib/src/KintoneFields/types/field";
-
 describe("TableUserFieldService", () => {
   describe("extractUserCodesFromTable", () => {
     it("テーブル内の単一ユーザーフィールドからユーザーコードを抽出できる", () => {
-      const tableData: Subtable<{
-        テーブル内ユーザーフィールド1: InSubtable<UserSelect>;
+      const tableData: KintoneRecordField.Subtable<{
+        テーブル内ユーザーフィールド1: KintoneRecordField.UserSelect;
       }> = {
         type: "SUBTABLE",
         value: [
@@ -52,8 +47,8 @@ describe("TableUserFieldService", () => {
     });
 
     it("テーブル内の複数行から重複を除いたユーザーコードを抽出できる", () => {
-      const tableData: Subtable<{
-        テーブル内ユーザーフィールド1: InSubtable<UserSelect>;
+      const tableData: KintoneRecordField.Subtable<{
+        テーブル内ユーザーフィールド1: KintoneRecordField.UserSelect;
       }> = {
         type: "SUBTABLE",
         value: [
@@ -92,8 +87,8 @@ describe("TableUserFieldService", () => {
     });
 
     it("空のテーブルの場合は空配列を返す", () => {
-      const tableData: Subtable<{
-        テーブル内ユーザーフィールド1: InSubtable<UserSelect>;
+      const tableData: KintoneRecordField.Subtable<{
+        テーブル内ユーザーフィールド1: KintoneRecordField.UserSelect;
       }> = {
         type: "SUBTABLE",
         value: [],
@@ -107,8 +102,8 @@ describe("TableUserFieldService", () => {
     });
 
     it("ユーザーフィールドが空の行がある場合も正しく処理する", () => {
-      const tableData: Subtable<{
-        テーブル内ユーザーフィールド1: InSubtable<UserSelect>;
+      const tableData: KintoneRecordField.Subtable<{
+        テーブル内ユーザーフィールド1: KintoneRecordField.UserSelect;
       }> = {
         type: "SUBTABLE",
         value: [
@@ -147,9 +142,9 @@ describe("TableUserFieldService", () => {
 
       const result = createUserSelectValue(userCodes);
       expect(result).toEqual([
-        { code: "user1" },
-        { code: "user2" },
-        { code: "user3" },
+        { code: "user1", name: "" },
+        { code: "user2", name: "" },
+        { code: "user3", name: "" },
       ]);
     });
 
@@ -216,15 +211,15 @@ describe("TableUserFieldService", () => {
 
       const result = copyTableUsersToFields(record);
 
-      expect(result.テーブル外ユーザーフィールド1.value).toEqual([
-        { code: "user1" },
-        { code: "user2" },
-        { code: "user4" },
+      expect(result.テーブル外ユーザーフィールド1?.value).toEqual([
+        { code: "user1", name: "" },
+        { code: "user2", name: "" },
+        { code: "user4", name: "" },
       ]);
 
-      expect(result.テーブル外ユーザーフィールド2.value).toEqual([
-        { code: "user3" },
-        { code: "user5" },
+      expect(result.テーブル外ユーザーフィールド2?.value).toEqual([
+        { code: "user3", name: "" },
+        { code: "user5", name: "" },
       ]);
     });
 

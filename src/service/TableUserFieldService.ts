@@ -1,3 +1,5 @@
+import { FIELD_CODES } from "../config/fieldConfig";
+
 import type {
   InSubtable,
   Subtable,
@@ -44,19 +46,20 @@ export function createUserSelectValue(
 }
 
 interface RecordWithUserFields {
-  テーブル?: Subtable<{
-    テーブル内ユーザーフィールド1?: InSubtable<UserSelect>;
-    テーブル内ユーザーフィールド2?: InSubtable<UserSelect>;
+  [FIELD_CODES.TABLE]?: Subtable<{
+    [FIELD_CODES.TABLE_USER_FIELD_1]?: InSubtable<UserSelect>;
+    [FIELD_CODES.TABLE_USER_FIELD_2]?: InSubtable<UserSelect>;
   }>;
-  テーブル外ユーザーフィールド1?: UserSelect;
-  テーブル外ユーザーフィールド2?: UserSelect;
+  [FIELD_CODES.EXTERNAL_USER_FIELD_1]?: UserSelect;
+  [FIELD_CODES.EXTERNAL_USER_FIELD_2]?: UserSelect;
   [key: string]: any;
 }
 
 export function copyTableUsersToFields(
   record: RecordWithUserFields,
 ): RecordWithUserFields {
-  if (!record.テーブル || !record.テーブル.value) {
+  const tableField = record[FIELD_CODES.TABLE];
+  if (!tableField || !tableField.value) {
     return record;
   }
 
@@ -64,24 +67,26 @@ export function copyTableUsersToFields(
 
   // テーブル内ユーザーフィールド1の処理
   const userCodes1 = extractUserCodesFromTable(
-    record.テーブル,
-    "テーブル内ユーザーフィールド1",
+    tableField,
+    FIELD_CODES.TABLE_USER_FIELD_1,
   );
-  if (updatedRecord.テーブル外ユーザーフィールド1) {
-    updatedRecord.テーブル外ユーザーフィールド1 = {
-      ...updatedRecord.テーブル外ユーザーフィールド1,
+  const externalField1 = updatedRecord[FIELD_CODES.EXTERNAL_USER_FIELD_1];
+  if (externalField1) {
+    updatedRecord[FIELD_CODES.EXTERNAL_USER_FIELD_1] = {
+      ...externalField1,
       value: createUserSelectValue(userCodes1),
     };
   }
 
   // テーブル内ユーザーフィールド2の処理
   const userCodes2 = extractUserCodesFromTable(
-    record.テーブル,
-    "テーブル内ユーザーフィールド2",
+    tableField,
+    FIELD_CODES.TABLE_USER_FIELD_2,
   );
-  if (updatedRecord.テーブル外ユーザーフィールド2) {
-    updatedRecord.テーブル外ユーザーフィールド2 = {
-      ...updatedRecord.テーブル外ユーザーフィールド2,
+  const externalField2 = updatedRecord[FIELD_CODES.EXTERNAL_USER_FIELD_2];
+  if (externalField2) {
+    updatedRecord[FIELD_CODES.EXTERNAL_USER_FIELD_2] = {
+      ...externalField2,
       value: createUserSelectValue(userCodes2),
     };
   }

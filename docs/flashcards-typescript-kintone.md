@@ -325,6 +325,37 @@ async function processKintoneData(data: unknown) {
 
 ---
 
+### カード17: export * as によるNamespace Export
+**Q: `export * as` とは何で、なぜ使うのか？**
+
+**A:**
+**モジュールベースの名前空間を作成する現代的な方法**
+
+```typescript
+// 3層構造の例（kintone-rest-api-clientのパターン）
+// 1. types/field.ts - 型定義
+export type UserSelect = { type: "USER_SELECT"; value: Entity[] };
+export type Number = { type: "NUMBER"; value: string };
+
+// 2. exportTypes/field.ts - 選択的再エクスポート
+export type { UserSelect, Number } from "../types/field";
+
+// 3. index.ts - 名前空間エクスポート
+export * as KintoneRecordField from "./exportTypes/field";
+
+// 使用側
+import { KintoneRecordField } from "@kintone/rest-api-client";
+type User = KintoneRecordField.UserSelect; // ドット記法でアクセス
+```
+
+**利点**:
+- 名前の衝突を防ぐ（Numberなど）
+- 関連する型をグループ化
+- インポート文がシンプル
+- 従来の`namespace`より推奨される
+
+---
+
 ## 記憶のコツ
 
 ### 学習方法

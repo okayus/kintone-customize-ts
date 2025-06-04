@@ -183,20 +183,29 @@ import MyDefault from "module";
 **Q: 2つの型が互換性があるか確認する方法は？**
 
 **A:**
+**構造的型付け**: TypeScriptは型の「形」で互換性を判断
+
 ```typescript
-// 1. 代入で確認
-type A = { x: number };
-type B = { x: number; y: string };
-const b: B = { x: 1, y: "hello" };
-const a: A = b; // OK: BはAに代入可能
+// 1. 代入で確認（最も実践的）
+type Point2D = { x: number; y: number };
+type Point3D = { x: number; y: number; z: number };
 
-// 2. extendsで確認
+const p3d: Point3D = { x: 1, y: 2, z: 3 };
+const p2d: Point2D = p3d; // ✅ OK: Point3DはPoint2Dに必要なものを全て持つ
+// const p3d2: Point3D = p2d; // ❌ エラー: zが不足
+
+// 2. extendsで型レベル確認
 type IsCompatible<T, U> = T extends U ? true : false;
-type Result = IsCompatible<B, A>; // true
+type Test1 = IsCompatible<Point3D, Point2D>; // true
+type Test2 = IsCompatible<Point2D, Point3D>; // false
 
-// 3. エラーメッセージで確認
-// 型が合わない場合、詳細な理由が表示される
+// 3. 実用例：Kintoneフィールド
+type HasUserField<T> = T extends { ユーザー: any } ? true : false;
+type Record1 = { ユーザー: KintoneRecordField.UserSelect; 名前: any };
+type Check = HasUserField<Record1>; // true
 ```
+
+**覚え方**: 「多い方から少ない方へは代入OK」（スーパーセット→サブセット）
 
 ---
 
@@ -246,16 +255,73 @@ type Result = IsCompatible<B, A>; // true
 1. **anyを避ける**: unknownやジェネリックを使用
 2. **型アサーションより型ガード**:
    ```typescript
-   // ❌ 型アサーション
+   // ❌ 型アサーション（危険）
    const user = data as User;
    
-   // ✅ 型ガード
+   // ✅ 型ガード（安全）
+   interface User {
+     code: string;
+     name: string;
+   }
+   
+   const isUser = (value: unknown): value is User => {
+     return (
+       typeof value === 'object' && value !== null &&
+       'code' in value && typeof (value as any).code === 'string' &&
+       'name' in value && typeof (value as any).name === 'string'
+     );
+   };
+   
    if (isUser(data)) {
-     // dataはUser型
+     // dataはUser型として安全に使用可能
+     console.log(data.code, data.name);
    }
    ```
 3. **strictモードを有効化**
 4. **型定義を最新に保つ**: `npm update @types/*`
+
+---
+
+### カード16: 型ガード（Type Guards）
+**Q: 型ガードとは何で、なぜ型アサーションより安全なのか？**
+
+**A:**
+**型ガード**: 実行時に値の型を確認し、TypeScriptに型を伝える関数
+
+```typescript
+// Kintoneのユーザーオブジェクト用の型ガード
+interface KintoneUser {
+  code: string;
+  name: string;
+}
+
+const isKintoneUser = (value: unknown): value is KintoneUser => {
+  if (typeof value !== 'object' || value === null) {
+    return false;
+  }
+  
+  const obj = value as Record<string, unknown>;
+  return (
+    typeof obj.code === 'string' &&
+    typeof obj.name === 'string'
+  );
+};
+
+// 使用例（API応答の検証など）
+async function processKintoneData(data: unknown) {
+  if (isKintoneUser(data)) {
+    // 型安全：dataは確実にKintoneUser型
+    console.log(`User: ${data.code} - ${data.name}`);
+  } else {
+    throw new Error('Invalid user data');
+  }
+}
+```
+
+**利点**:
+- **実行時安全性**: 実際に値を検証
+- **型推論**: TypeScriptが自動で型を絞り込み
+- **デバッグしやすい**: エラーの原因が特定可能
 
 ---
 

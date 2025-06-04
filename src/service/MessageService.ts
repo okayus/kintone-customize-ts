@@ -4,7 +4,6 @@ import type {
   AppID,
   Record,
 } from "@kintone/rest-api-client/lib/src/client/types";
-import type { SingleLineText } from "@kintone/rest-api-client/lib/src/KintoneFields/types/field";
 
 export class MessageService {
   private kintoneSdk: KintoneSdk;

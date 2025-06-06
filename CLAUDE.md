@@ -38,3 +38,4 @@ kintoneのレコード型などは以下にある
 - [x] リファクタリング（InSubtable<UserSelect>で"Type 'InSubtable' is not generic.ts(2315)"のtsエラーの解消。まずtsconfigの設定を修正する）
 - [x] 学習用の振り返りドキュメント作成。なぜKintoneRecordField型を使えば解決できたのか。これができるための前提知識と思考プロセスを教えて
 - [x] 前提知識を覚えるためのフラッシュカード作成
+- [x] 総合学習ガイドの作成（プロジェクト限定でない一般化された知識）

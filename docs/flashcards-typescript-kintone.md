@@ -356,6 +356,33 @@ type User = KintoneRecordField.UserSelect; // ドット記法でアクセス
 
 ---
 
+### カード18: 選択的エクスポート設計
+**Q: なぜAppIDやRecord型は深いパスからしかインポートできないの？**
+
+**A:**
+**使用頻度と責任による分類**
+
+```typescript
+// ❌ できない（メインエクスポートにない）
+import { AppID, Record } from "@kintone/rest-api-client";
+
+// ✅ 正しい（深いパスから）
+import type { AppID, Record } from "@kintone/rest-api-client/lib/src/client/types";
+
+// ✅ フィールド型は名前空間で提供
+import { KintoneRecordField } from "@kintone/rest-api-client";
+type User = KintoneRecordField.UserSelect;
+```
+
+**設計理由**:
+1. **使用頻度**: フィールド型（高頻度）vs クライアント型（低頻度）
+2. **責任分離**: アプリ開発用 vs ライブラリ内部用
+3. **名前空間汚染防止**: `Record`は一般的すぎる名前
+
+**覚え方**: 「よく使うものは表に、詳細は奥に」（Progressive Disclosure）
+
+---
+
 ## 記憶のコツ
 
 ### 学習方法
